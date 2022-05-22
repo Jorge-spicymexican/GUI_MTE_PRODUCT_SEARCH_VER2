@@ -11,7 +11,9 @@
 #  Rev:
 
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, Menu
+from tkinter.messagebox import showinfo
+import Sub_GUI
 
 from selenium import webdriver
 from openpyxl import Workbook
@@ -21,6 +23,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 import file_lookup_imports as FM
 import noti_and_checker as noti
+
 
 
 def selenium(array_product_name, web_driver, target, date, author, directory):
@@ -72,7 +75,7 @@ def go(selection, driver):
 
 
 def scrape(array_product_name, driver):
-    # these two arrays will be used to store the values havest from the webpage
+    # these two arrays will be used to store the values harvest from the webpage
     description = []
     unit_price = []
     #  switches where selenium looks at by going to the second screen
@@ -89,7 +92,7 @@ def scrape(array_product_name, driver):
             array_product_name[ll])
         WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".plxsty_pid"))).send_keys(
             Keys.ENTER)
-        # looks for element by full xpath and clicks with arguements[0] is are fullfilled.
+        # looks for element by full xpath and clicks with arguments[0] is are fulfilled.
         accept_bar = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[3]/table/tbody/tr/td[1]")
         driver.execute_script("arguments[0].click();", accept_bar)
         d1 = driver.find_element(By.XPATH, "/html/body/div/table[4]/tbody/tr[2]/td/table/tbody/tr[2]/td[3]")
@@ -98,7 +101,7 @@ def scrape(array_product_name, driver):
         p1 = driver.find_element(By.XPATH, "/html/body/div/table[4]/tbody/tr[2]/td/table/tbody/tr[2]/td[4]")
         p1 = p1.text
         unit_price.append(p1)
-        # This line excute_script is to move back to the last opened page.
+        # This line execute_script is to move back to the last opened page.
         driver.execute_script("window.history.go(-1)")
 
     # close the web browser and finish
@@ -131,22 +134,6 @@ def save_excel(wb, date, author, directory):
         title='New Excel Location : ',
         message=file
     )
-
-"""
-Function for Creating new window for new settings and configurations
-"""
-def New_Product_Window():
-    # creates a Tk() object
-    master = tk.Tk()
-
-    master.title('TCI LLC - MTE Product Search')
-    master.resizable(False, False)
-    # ensure that a window is always at the top of the stacking order
-    master.attributes('-topmost', 1)
-    master.geometry("250x230")
-
-    master.iconbitmap('./assets/tci_logo_Csx_icon.ico')
-    master.grid()
 
 
 """
@@ -231,7 +218,7 @@ class MainFrame(ttk.Frame):
         else:
             """
             If wer are not reading from a raw excel allow the user to select which MTE Product Family to Read from
-            and store the result to a a varibale.
+            and store the result to a a variable.
             """
             New_Product_Window()
 
@@ -298,11 +285,87 @@ class MainFrame(ttk.Frame):
 
 
 """
+Here, we are creating our class, Window, and inheriting from the Frame
+class. Frame is a class from the tkinter module. (see Lib/tkinter/__init__)
+"""
+class Window(tk.Frame):
+
+    # Define settings upon initialization. Here you can specify
+    def __init__(self, master):
+        super().__init__(master)
+        # field options
+
+        # reference to the master widget, which is the tk window
+        self.save = tk.BooleanVar()
+        self.save.set(False)
+        self.master = master
+
+        # with that, we want to then run init_window, which doesn't yet exist
+        self.init_window()
+
+    # Creation of init_window
+    def init_window(self):
+        # creating a menu instance
+        menu = Menu(self.master)
+        self.master.config(menu=menu)
+
+        # create the file object
+        file = Menu(menu)
+
+        # adds a command to the menu option, calling it exit, and the
+        # command it runs on event is client_exit
+        file.add_command(label="Read Me",  command=self.read_me_exit)
+
+        # added "file" to our menu
+        menu.add_cascade(label="File", menu=file)
+
+        # create the file object
+        product_search = Menu(menu)
+
+        # added "about the author" to our menu
+        product_search.add_command(label="Type",  command=self.Type)
+        product_search.add_command(label="Voltage",  command=self.Voltage)
+        product_search.add_command(label="Style",  command=self.Style)
+
+        # adds a command to the menu option, calling it exit, and the
+        # command it runs on event is client_exit
+        menu.add_cascade(label="Product Selection", menu=product_search)
+
+        # create the file object
+        github = Menu(menu)
+
+        # added "about the author" to our menu
+        github.add_command(label="GitHub Repository",  command=self.github_windows_open)
+
+        # adds a command to the menu option, calling it exit, and the
+        # command it runs
+        menu.add_cascade(label="Github", menu=github)
+
+    @staticmethod
+    def Style():
+        Sub_GUI.text_window("Read Me", Sub_GUI.read_info)
+
+    @staticmethod
+    def Voltage():
+        Sub_GUI.text_window("Read Me", Sub_GUI.read_info)
+
+    @staticmethod
+    def read_me_exit():
+        Sub_GUI.text_window("Read Me", Sub_GUI.read_info)
+
+    @staticmethod
+    def Type():
+        Sub_GUI.Product_Window("Product Type")
+
+    @staticmethod
+    def github_windows_open():
+        Sub_GUI.text_window("Read Me", Sub_GUI.read_info)
+
+
+"""
 Main Object Creation - this class setups the title, Window Attributes,
  Width and height, and Logo for UI
 """
-
-
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -313,7 +376,7 @@ class App(tk.Tk):
         self.attributes('-topmost', 1)
 
         window_width = 250
-        window_height = 220
+        window_height = 250
 
         # get screen dimension
         screen_width = self.winfo_screenwidth()
@@ -332,7 +395,11 @@ class App(tk.Tk):
         frm.grid()
 
 
+"""
+Main Program that gets run!
+"""
 if __name__ == "__main__":
     app = App()
+    Window(app)
     MainFrame(app)
     app.mainloop()

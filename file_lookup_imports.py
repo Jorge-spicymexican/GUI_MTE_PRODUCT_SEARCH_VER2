@@ -12,10 +12,12 @@ from tkinter import filedialog as fd
 This functions allows the User to Selected any type of files to be imported for UI Interface. It will then
 display the file imported and show the user where the was imported.
 """
+
+
 def file_lookup():
     filetypes = (
         ('All files', '*.*'),
-        ('Application files', '*.exe'),
+        ('CSV files', '*.csv'),
         ('Excel files', '*.xlsx')
     )
     filename = fd.askopenfilename(
@@ -28,9 +30,12 @@ def file_lookup():
         noti.FileInsertedNotfi(filename)
     return filename
 
+
 """
 Folder lookup
 """
+
+
 def folder_lookup():
     directory = fd.askdirectory(
     )
@@ -47,6 +52,8 @@ This function tries to read the excel with 3 different functions. When it can re
 the excel file it will will just end up notifying the user and give the user ample time to fix this issue. This is 
 in order to make sure the user can get his settings configured before starting program
 """
+
+
 def load_excel(filepath):
     df = None
     if filepath:
