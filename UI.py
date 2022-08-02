@@ -9,132 +9,19 @@
 #
 #  Date of Creation: 12/29/2021
 #  Rev:
-
 import tkinter as tk
 from tkinter import ttk
 
-from selenium import webdriver
-from openpyxl import Workbook
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+import SeleniumScrap as Sel
 import file_lookup_imports as FM
 import noti_and_checker as noti
 
 
-def selenium(array_product_name, web_driver, target, date, author, directory):
-    # main website of MTE Corporation
-    main_page = "https://www.mtecorp.com/click-find/"
-    driver = webdriver.Chrome(executable_path=web_driver)
-    # Goes to main page
-    driver.get(main_page)
-    # to maximize the browser window
-    driver.minimize_window()
-    driver = go(target, driver)
-    wb = scrape(array_product_name, driver)
-    save_excel(wb, date, author, directory)
-
-
-def go(selection, driver):
-    if selection == "RL":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[1]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "RLW":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[2]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-        # input_product_name(array_Product_Name)
-    elif selection == "DVS":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[3]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "SWG":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[5]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "SWN":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[6]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "SWGM":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[7]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "MAP":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[8]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "MAEP":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[9]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "DVT":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[3]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    elif selection == "RF3":
-        target = driver.find_element(By.XPATH, "/html/body/main/article/div/div/div/table/tbody/tr[12]/td[1]/a")
-        driver.execute_script("arguments[0].click();", target)
-    return driver
-
-
-def scrape(array_product_name, driver):
-    # these two arrays will be used to store the values havest from the webpage
-    description = []
-    unit_price = []
-    #  switches where selenium looks at by going to the second screen
-    #  function below is just so the bot can focus on new opened windows handler
-    driver.switch_to.window(driver.window_handles[1])
-
-    # for loop for the size of the array named this look will clear search bar, enter excel product name,
-    # press enter, locate the next button, and click on the button for the next page.
-    for ll in range(len(array_product_name)):
-        # clears search bar
-        WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".plxsty_pid"))).clear()
-        # inputs text string into the search bar and waits to execute for 20 seconds
-        WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".plxsty_pid"))).send_keys(
-            array_product_name[ll])
-        WebDriverWait(driver, 20).until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".plxsty_pid"))).send_keys(
-            Keys.ENTER)
-        # looks for element by full xpath and clicks with arguements[0] is are fullfilled.
-        accept_bar = driver.find_element(By.XPATH, "/html/body/div[2]/div[1]/div[3]/table/tbody/tr/td[1]")
-        driver.execute_script("arguments[0].click();", accept_bar)
-        d1 = driver.find_element(By.XPATH, "/html/body/div/table[4]/tbody/tr[2]/td/table/tbody/tr[2]/td[3]")
-        d1 = d1.text
-        description.append(d1)
-        p1 = driver.find_element(By.XPATH, "/html/body/div/table[4]/tbody/tr[2]/td/table/tbody/tr[2]/td[4]")
-        p1 = p1.text
-        unit_price.append(p1)
-        # This line excute_script is to move back to the last opened page.
-        driver.execute_script("window.history.go(-1)")
-
-    # close the web browser and finish
-    driver.close()
-    wb = new_excel(array_product_name, description, unit_price)
-    return wb
-
-
-def new_excel(array_product_name, description, unit_price):
-    # create a Workbook object.
-    work_book = Workbook()
-    sh = work_book.active
-    sh.title = "Sheet1"
-    for j in range(0, len(array_product_name)):
-        sh.cell(row=j + 1, column=1).value = array_product_name[j]
-        sh.cell(row=j + 1, column=2).value = description[j]
-        sh.cell(row=j + 1, column=3).value = unit_price[j]
-    return work_book
-
-
-def save_excel(wb, date, author, directory):
-    # create a file name using the date, and author
-    # check if date has any / or \ -
-    if directory != "":
-        file = directory + "/" + author + "_" + date + "_" + "Result.xlsx"
-    else:
-        file = author + "_" + date + "_" + "Result.xlsx"
-    wb.save(filename=file)
-    showinfo(
-        title='New Excel Location : ',
-        message=file
-    )
-
 """
 Function for Creating new window for new settings and configurations
 """
+
+
 def New_Product_Window():
     # creates a Tk() object
     master = tk.Tk()
@@ -148,11 +35,56 @@ def New_Product_Window():
     master.iconbitmap('./assets/tci_logo_Csx_icon.ico')
     master.grid()
 
+    # Label for Product Type
+    label = tk.Label(master, text="Product Type")
+    label.grid(column=0, columnspan=1, row=0, sticky=tk.W )
+
+    # Create a combobox for Product Type
+    master.select_Product = tk.StringVar()
+    Product_cb = ttk.Combobox(master, textvariable=master.select_Product)
+
+    # setup the Product Names as values and states
+    Product_cb['state'] = 'readonly'
+    Product_cb['values'] = ["RL", "RLW", "DVT", "DVS", "SWG", "SWN", "SWGM", "MAP", "MAEP", "RFI"]
+
+    Product_cb.grid(column=3, columnspan=2, row=0, sticky=tk.EW)
+
+    # Setup for Voltage and and Enclosure
+    Voltage = tk.Label(master, text="Voltage")
+    Enclosure = tk.Label(master, text="Enclosure")
+    Voltage.grid(column=0, columnspan=1, row=1, sticky=tk.W )
+    Enclosure.grid(column=0, columnspan=1, row=2, sticky=tk.W )
+
+    # Create a combobox for Voltage
+    select_Voltage = tk.StringVar()
+    Voltage_cb = ttk.Combobox(master, textvariable=select_Voltage)
+    Voltage_cb['state'] = 'readonly'
+    Voltage_cb['values'] = ["208", "240", "400", "480", "600", "690"]
+    Voltage_cb.grid(column=3, columnspan=2, row=1, sticky=tk.EW)
+
+
+    # Create a combobox for Enclosure
+    select_Enclosure = tk.StringVar()
+    Enclosure_CB = ttk.Combobox(master, textvariable=select_Enclosure)
+    Enclosure_CB['state'] = 'readonly'
+    Enclosure_CB['values'] = ["KIT", "Panel Mount", "Modular", "NEMA 1", "NEMA 1/2", "NEMA 3R"]
+    Enclosure_CB.grid(column=3, columnspan=2, row=2, sticky=tk.EW)
+
+
+    def Product_changed():
+        """"Handle the product changed event"""
+        print("you Selected", master.select_Product.get() )
+        print(select_Voltage.get() )
+
+    Product_cb.bind('<<ComboboxSelected>>', Product_changed() )
+
 
 """
 This class created the main window for UI and Setups of buttons and entry points. 
 It also assigns functions and actions to each specific functions when clicked.
 """
+
+
 class MainFrame(ttk.Frame):
     run_excel: bool
 
@@ -187,13 +119,13 @@ class MainFrame(ttk.Frame):
                    command=self.select_webdriver).grid(column=1, columnspan=2, row=1, sticky=tk.EW, **options)
 
         # excel button
-        ttk.Button(self, text='Insert Raw Data',
+        ttk.Button(self, text='Insert Product Name',
                    command=self.select_excel).grid(column=0, row=2, columnspan=3, sticky=tk.EW, **options)
 
         self.run_excel = False
 
         # Create A checkbox Button
-        self.btn = tk.Checkbutton(self, text='Use Imported Data', command=self.checkbox,
+        self.btn = tk.Checkbutton(self, text='Use Imported Names', command=self.checkbox,
                                   variable=self.run_excel)
         # self.btn.configure(bg='#ffb3fe')
         self.btn.grid(row=3, column=0, columnspan=3, sticky=tk.EW)
@@ -217,69 +149,70 @@ class MainFrame(ttk.Frame):
         In this function we will first check that the excel can be read
         afterwards checking if the excel can be read we will then check the chrome driver being used
         """
-        if self.run_excel is True:
-            if self.filename == "":
-                "Tell the user that they have not loaded an excel"
-                noti.InsertExcel()
-                return
-            else:
-                "Check if the excel can be read if so save the values and store the data into an array " \
-                "afterwards run a different that checks the entries being inserted."
-                self.Product_array = FM.load_excel(self.filename)
-                if self.Product_array is None:
-                    return
-        else:
-            """
-            If wer are not reading from a raw excel allow the user to select which MTE Product Family to Read from
-            and store the result to a a varibale.
-            """
-            New_Product_Window()
+        # Debugging Variables
+        print("FileName:", self.projectname.get())
+        print("new Excel Path", self.new_excel_path)
+        print("webdriver", self.web_driver)
+        print("Inserted Excel", self.filename)
 
-    @property
-    def check_entry(self):
+        # If  Project Name, Webdriver or Excel is null then do not run and tell the user about these null values
+        # Afterwards Check if Excel can be run and if the ChromeDriver is the Correct Model if Error exist then tell
+        # let the user know by a windows notification
+        if self.CheckSUM() is True:
+            if self.run_excel is True:
+                if self.filename == "":
+                    "Tell the user that they have not loaded an excel"
+                    noti.InsertExcel()
+                    return
+                else:
+                    "Check if the excel can be read if so save the values and store the data into an array "
+                    "afterwards run a different that checks the entries being inserted."
+                    self.Product_array = FM.load_excel(self.filename)
+                    if self.Product_array is None:
+                        noti.DataNotFound()
+                        return
+                    else:
+                        # Go ahead and Open Selenium and Run Excel Variables
+                        print("Excel data was found read Variables from Excel")
+
+                        # figure out which Product Line we will be Scraping from
+                        # based on the Index of the Product
+                        Sel.selenium(self.Product_array, self.web_driver, self.projectname, self.new_excel_path)
+
+
+
+            else:
+                """
+                If wer are not reading from a raw excel allow the user to select which MTE Product Family to Read from
+                and store the result to a a variable. Tell the User that they should select a Value that must be ran
+                """
+                print("Not Reading from Raw Excel allow the user to select from MTE Product Family to Read Combobox")
+                # FUTURE New_Product_Window()
+        else:
+            # debugging
+            print("CHeck Entry Function Failed ")
+
+
+    def CheckSUM(self):
         check = True
         # Retrieve the of name, date, and MTE Selection
-        inputs = [self.projectname.get(), self.selected_product.get(), self.filename,
-                  self.web_driver]
-        if inputs[0] == '':
-            showerror(
-                title='Error-Name',
-                message='Please type in name.'
-            )
+        if self.projectname.get() == '':
+            FM.ProjectNameNull()
             check = False
-        if inputs[1] == '':
-            showerror(
-                title='Error-Selection',
-                message='User did not Selected Product Line, Please Check.'
-            )
+        elif self.new_excel_path == '':
+            FM.NewExcelLocationNull()
             check = False
-        if inputs[2] == '':
-            showerror(
-                title='Error-Excel File',
-                message='User did not Inserted an Excel File.'
-            )
-            check = False
-        if inputs[3] == '':
-            showerror(
-                title='Error-Webdriver',
-                message='User did not Inserted a Selenium based Webdriver.'
-            )
+        elif self.web_driver == '':
+            FM.WebDriverNull()
             check = False
         if check:
-            showinfo(
-                title='Settings',
-                message='Settings are Configured'
-            )
-            self.show_selected_product()
-            product_name = load_excel(inputs[3])
-            if len(product_name) != 0:
-                if self.web_driver[-16:] == "chromedriver.exe":
-                    selenium(product_name, inputs[4], inputs[2], inputs[1], inputs[0], self.new_excel_path)
-                else:
-                    showerror(
-                        title='Error-Driver',
-                        message='Does not support this Driver. Make sure your Driver is named like this...chromedriver'
-                    )
+            # go ahead and attempt to open selenium and see if so return true else return false
+            # Open Webdriver from Chrome
+            output = Sel.TestChromeDriver(self.web_driver)
+            return output
+        else:
+            return check
+
 
     def select_excel(self):
         self.filename = FM.file_lookup()

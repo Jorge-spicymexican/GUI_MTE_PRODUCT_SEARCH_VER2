@@ -1,6 +1,7 @@
 from win32com.client import Dispatch
 from plyer import notification
 
+
 """
 File Imported display
 """
@@ -89,6 +90,18 @@ def InsertExcel():
         toast=True
     )
 
+"""
+Excel does not Have Data inside
+"""
+def DataNotFound():
+    notification.notify(
+        title="Excel Data not Found",
+        message="Please Check your Excel File make sure Sheet Name is Sheet1, and Data is the First Column",
+        app_icon='./assets/tci_logo_Csx_icon.ico',
+        timeout=6,
+        toast=True
+    )
+
 
 """
 Excel read only mode
@@ -127,4 +140,4 @@ def get_version_via_com(filename):
 
 
 if __name__ == "__main__":
-    print("FILE SHOULD BE RUN AS MAIN.\n")
+    print("FILE SHOULD NOT BE RUN AS MAIN.\n")

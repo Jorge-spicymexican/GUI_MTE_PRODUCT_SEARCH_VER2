@@ -1,4 +1,4 @@
-from tkinter.messagebox import showinfo
+from tkinter.messagebox import showinfo, showerror
 
 import pandas.core.frame
 
@@ -7,6 +7,39 @@ from openpyxl import load_workbook
 from openpyxl.utils.exceptions import InvalidFileException, ReadOnlyWorkbookException
 import pandas as pd
 from tkinter import filedialog as fd
+
+"""
+show info checking sun method results
+"""
+def ProjectNameNull():
+    showerror(
+        title='Error-Name',
+        message='Please type in name.'
+    )
+
+def WebDriverNull():
+    showerror(
+        title='Error-Webdriver',
+        message='User did not Inserted a Selenium based Webdriver. '
+                'More info Click this Link https://chromedriver.chromium.org/downloads '
+    )
+
+def WebDriverVersionIssue(version):
+    showerror(
+        title='Error- Chrome Version Error',
+        message='Webdriver version is different from Current Chrome Browser. Please Install Chrome Driver ' + version
+                + ' from https://chromedriver.chromium.org/downloads ' + 'to Resolve Issue'
+    )
+
+"""
+show info check sum method results for new excel folder error
+"""
+def NewExcelLocationNull():
+    showerror(
+        title='Error-Location',
+        message='User did Select a NEW Excel Location, Please Check.'
+    )
+
 
 """
 This functions allows the User to Selected any type of files to be imported for UI Interface. It will then
