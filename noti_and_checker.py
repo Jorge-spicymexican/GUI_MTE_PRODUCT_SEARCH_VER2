@@ -1,10 +1,12 @@
-from win32com.client import Dispatch
+# from win32com.client import Dispatch
 from plyer import notification
 
 
 """
 File Imported display
 """
+
+
 def FileInsertedNotfi(filename):
     notification.notify(
         title="File Imported",
@@ -18,6 +20,8 @@ def FileInsertedNotfi(filename):
 """
 File Could not be imparted 
 """
+
+
 def FileInsertErrorNotfi():
     notification.notify(
         title="File Error",
@@ -31,6 +35,8 @@ def FileInsertErrorNotfi():
 """
 File could not be opened
 """
+
+
 def filenotopened():
     notification.notify(
         title="File Error",
@@ -44,6 +50,8 @@ def filenotopened():
 """
 Excel Import error
 """
+
+
 def ImportError():
     notification.notify(
         title="Excel  Error",
@@ -53,9 +61,12 @@ def ImportError():
         toast=True
     )
 
+
 """
 Excel Read error
 """
+
+
 def ExcelReadError():
     notification.notify(
         title="Excel Error",
@@ -69,6 +80,8 @@ def ExcelReadError():
 """
 Excel not found 
 """
+
+
 def NotFoundError():
     notification.notify(
         title="Excel Error",
@@ -78,9 +91,12 @@ def NotFoundError():
         toast=True
     )
 
+
 """
 Please insert an excel file
 """
+
+
 def InsertExcel():
     notification.notify(
         title="Excel Not Inserted",
@@ -106,6 +122,8 @@ def DataNotFound():
 """
 Excel read only mode
 """
+
+
 def ExcelReadonlyError():
     notification.notify(
         title="Excel Error",
@@ -120,6 +138,8 @@ def ExcelReadonlyError():
 This function checks the chrome version path that the user has and also checks if the a chrome driver already exist 
 in his application. 
 """
+
+
 def Chrome_path_check():
     paths = [r"C:\Program Files\Google\Chrome\Application\chrome.exe",
              r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"]
@@ -130,6 +150,8 @@ def Chrome_path_check():
 """
 This functions returns and gets the file version for chrome.
 """
+
+
 def get_version_via_com(filename):
     parser = Dispatch("Scripting.FileSystemObject")
     try:
